@@ -1,0 +1,104 @@
+Project : Analyze Marketing Campaign Performance
+
+1.How many customer records are in the dataset?
+select count(*) from marketing_campaign
+select count(distinct id)  from marketing_campaign mc 
+
+2.How many customers accepted each of the five marketing campaigns?SELECT 
+sum(mc.AcceptedCmp1 )as campaign1,
+sum(mc.AcceptedCmp2 )as campaign2,
+sum(mc.AcceptedCmp3 )as campaign3,
+sum(mc.AcceptedCmp4 )as campaign4,
+sum(mc.AcceptedCmp5 )as campaign5
+from marketing_campaign mc 
+--------------------
+3.What is the overall acceptance rate across all marketing campaigns?
+
+SELECT 
+sum(mc.AcceptedCmp1 )+
+sum(mc.AcceptedCmp2 )+sum(mc.AcceptedCmp3 )+
+sum(mc.AcceptedCmp4 )+
+sum(mc.AcceptedCmp5 )+sum(mc.Response ) AS OverallAcceptanceRate
+from marketing_campaign mc 
+
+SELECT round( 100.0*(
+sum(mc.AcceptedCmp1 )+
+sum(mc.AcceptedCmp2 )+sum(mc.AcceptedCmp3 )+
+sum(mc.AcceptedCmp4 )+
+sum(mc.AcceptedCmp5 ))/(count(*)*5),2)
+AS overall_acceptance_rate
+from marketing_campaign mc 
+
+Explanation:
+SUM(...): counts how many times customers accepted each campaign.
+
+COUNT(*) * 5: total number of opportunities (5 campaigns × total customers).
+
+The division gives the acceptance ratio, and multiplying by 100 gives it in percent.
+
+ROUND(..., 2): rounds the result to 2 decimal places.
+-------------------
+
+4.How many customers belong to each education level?
+select Education,count(*) AS customer_count
+From marketing_campaign mc 
+Group  by Education 
+order by customer_count desc
+-------------------
+5.What is the average income of customers who accepted the most recent campaign?
+select round(avg(mc.Income ),2)  AS average_income
+from marketing_campaign mc 
+where mc.Response = 1
+--------------------
+6.Which purchase channel had the highest number of purchases?
+
+SELECT 
+sum(NumCatalogPurchases) AS catalogpurchase,
+sum(NumDealsPurchases) AS Dealspurchase,
+sum(NumWebPurchases) As WebPurchases,
+sum(NumStorePurchases) AS StorePurchases
+From marketing_campaign mc 
+
+
+with sample(purchascount,channel) as (
+SELECT sum(NumCatalogPurchases),"catalogpurchase" From marketing_campaign 
+union all
+SELECT sum(NumDealsPurchases),"Dealspurchase" From marketing_campaign 
+union all
+select sum(NumWebPurchases),"WebPurchases" From marketing_campaign
+union all
+select sum(NumStorePurchases),"storePurchases" From marketing_campaign  
+)
+select * from sample  order  by purchascount desc limit 1
+---------
+SELECT  'Web' AS channel, SUM(NumWebPurchases) AS total_purchases
+FROM marketing_campaign
+UNION ALL
+SELECT   'Catalog', SUM(NumCatalogPurchases) FROM marketing_campaign
+UNION ALL
+SELECT  'Store', SUM(NumStorePurchases)
+FROM marketing_campaign
+ORDER BY total_purchases DESC;
+--------------
+
+
+7.How many customers visited the website more than five times in the last month?
+select count(*) AS frequent_visitors 
+from marketing_campaign mc 
+where NumWebVisitsMonth > 5 
+--------------------------
+8.What is the average number of days since the last purchase across all customers?
+
+select round(avg(Recency),2) as avg_days_since_last_purchase
+from marketing_campaign mc 
+-------------------
+
+9.How many customers made at least one purchase using a discount?
+
+select count(*) as customers_with_discount_purchase
+from marketing_campaign mc 
+where mc.NumDealsPurchases > 0
+-------------------------- 
+
+
+
